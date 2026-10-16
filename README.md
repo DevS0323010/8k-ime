@@ -38,7 +38,8 @@ directly:
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-The page fills the window and is built for people who find small or close
+The page fills the window, top to bottom (text, controls, suggestions, keys),
+on any window shape, and is built for people who find small or close
 targets hard to hit: large keys with wide gaps, large type, and Help and
 Settings tucked behind buttons. Keys are bound by physical position, in eight
 chunks (Help draws the map): six letter keys, Func and Select, with the numpad
@@ -52,7 +53,7 @@ Settings (kept in the browser):
 - on-screen keys act when pressed or when released (slide off a key to cancel);
 - a hold time, 0.2 to 1 s, before any key counts, for the keyboard too, with a
   fill along the key while you hold;
-- a calm mode with no blinking or animation.
+- whether the cursor blinks (it does not by default).
 
 Spacing and capitals follow a few simple rules, not a language model (see the
 header of `src/ui/text.js`): punctuation attaches to the word before it, a

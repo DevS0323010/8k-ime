@@ -8,7 +8,7 @@ export const DEFAULTS = {
   theme: "auto", // auto | light | dark | contrast
   screenFire: "release", // on-screen keys fire when pressed or when released
   holdMs: 0, // how long a key must be held
-  calm: false, // no blinking or animation
+  blink: false, // the cursor blinks
 };
 
 /** The allowed values of each setting, in the order the panel shows them. */
@@ -26,7 +26,7 @@ export function normalize(raw) {
     for (const [key, allowed] of Object.entries(CHOICES)) {
       if (allowed.includes(raw[key])) settings[key] = raw[key];
     }
-    if (typeof raw.calm === "boolean") settings.calm = raw.calm;
+    if (typeof raw.blink === "boolean") settings.blink = raw.blink;
   }
   return settings;
 }
@@ -53,6 +53,6 @@ export function applySettings(settings, root = document.documentElement) {
   root.style.setProperty("--hold-ms", `${settings.holdMs}ms`);
   if (settings.theme === "auto") delete root.dataset.theme;
   else root.dataset.theme = settings.theme;
-  if (settings.calm) root.dataset.calm = "";
-  else delete root.dataset.calm;
+  if (settings.blink) root.dataset.blink = "";
+  else delete root.dataset.blink;
 }

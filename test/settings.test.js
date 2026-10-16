@@ -13,14 +13,14 @@ test("every default is one of its allowed choices", () => {
 });
 
 test("normalize keeps allowed values and replaces the rest with defaults", () => {
-  assert.deepEqual(normalize({ textSize: 1.5, theme: "dark", holdMs: 400, calm: true }), {
+  assert.deepEqual(normalize({ textSize: 1.5, theme: "dark", holdMs: 400, blink: true }), {
     ...DEFAULTS,
     textSize: 1.5,
     theme: "dark",
     holdMs: 400,
-    calm: true,
+    blink: true,
   });
-  assert.deepEqual(normalize({ textSize: 7, theme: "neon", holdMs: "400", calm: "yes" }), DEFAULTS);
+  assert.deepEqual(normalize({ textSize: 7, theme: "neon", holdMs: "400", blink: "yes" }), DEFAULTS);
   assert.deepEqual(normalize(null), DEFAULTS);
   assert.deepEqual(normalize("junk"), DEFAULTS);
 });

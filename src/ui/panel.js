@@ -67,13 +67,13 @@ export function createSettingsPanel(root, settings, onChange) {
     parts.push(fieldset);
   }
 
-  const calmLabel = document.createElement("label");
-  calmLabel.className = "choice wide";
-  const calm = document.createElement("input");
-  calm.type = "checkbox";
-  calm.addEventListener("change", () => onChange((current = { ...current, calm: calm.checked })));
-  calmLabel.append(calm, "Calm: no blinking or animation");
-  parts.push(calmLabel);
+  const blinkLabel = document.createElement("label");
+  blinkLabel.className = "choice wide";
+  const blink = document.createElement("input");
+  blink.type = "checkbox";
+  blink.addEventListener("change", () => onChange((current = { ...current, blink: blink.checked })));
+  blinkLabel.append(blink, "Blink the cursor");
+  parts.push(blinkLabel);
 
   const reset = document.createElement("button");
   reset.type = "button";
@@ -90,7 +90,7 @@ export function createSettingsPanel(root, settings, onChange) {
   function sync(next) {
     current = next;
     for (const { input, key, value } of radios) input.checked = next[key] === value;
-    calm.checked = next.calm;
+    blink.checked = next.blink;
   }
   sync(settings);
   return { sync };

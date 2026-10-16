@@ -26,11 +26,11 @@
   --radius: 14px;
   --gap: clamp(8px, 1.6vmin, 18px);
 
-  --fs-output: calc(var(--scale) * clamp(1.6rem, 4.2vmin, 3.6rem));
-  --fs-key: calc(var(--scale) * clamp(1.5rem, 4vmin, 3.4rem));
-  --fs-cand: calc(var(--scale) * clamp(1.4rem, 3.4vmin, 3rem));
-  --fs-buffer: calc(var(--scale) * clamp(1.6rem, 4vmin, 3.2rem));
-  --fs-ui: calc(var(--scale) * clamp(1.4rem, 3vmin, 2.6rem));
+  --fs-output: calc(var(--scale) * clamp(1.6rem, 4.8vmin, 4rem));
+  --fs-key: calc(var(--scale) * clamp(1.5rem, 5.5vmin, 4.6rem));
+  --fs-cand: min(calc(var(--scale) * clamp(1.4rem, 4.4vmin, 3.4rem)), 5.5dvh);
+  --fs-buffer: min(calc(var(--scale) * clamp(1.6rem, 4.6vmin, 3.6rem)), 6dvh);
+  --fs-ui: min(calc(var(--scale) * clamp(1.4rem, 3.4vmin, 2.8rem)), 4.2dvh);
   --fs-text: calc(var(--scale) * 1.25rem);
 }
 
@@ -84,11 +84,11 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
 #loading { margin: 24px; font-size: var(--fs-ui); color: var(--muted); }
 #loading.error { color: light-dark(#a02818, #ff8a78); }
 
-/* --- the page fills the window --- */
+/* --- the page fills the window, top to bottom: text, controls, suggestions, keys --- */
 #app {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 2fr);
+  grid-template-rows: minmax(3.5rem, 1fr) auto auto minmax(38dvh, 2fr); /* the keys always keep a good share */
   grid-template-areas: "output" "tools" "status" "keypad";
   gap: var(--gap);
   height: 100dvh;
@@ -96,15 +96,6 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
     max(var(--gap), env(safe-area-inset-bottom)) max(var(--gap), env(safe-area-inset-left));
 }
 #app[hidden] { display: none; }
-
-/* Wide windows: text and controls on the left, keys on the right, so keys stay close to square. */
-@media (min-aspect-ratio: 3/2) and (min-width: 800px) {
-  #app {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-    grid-template-rows: minmax(0, 1fr) auto auto;
-    grid-template-areas: "output keypad" "tools keypad" "status keypad";
-  }
-}
 
 .output-wrap { grid-area: output; display: flex; min-height: 0; }
 
@@ -121,19 +112,19 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* The cursor shows where the next word goes. It does not blink unless asked to. */
 .output::after {
   content: "";
   display: inline-block;
-  width: 0.12em;
-  height: 1em;
-  margin-left: 0.05em;
+  width: 0.16em;
+  height: 1.1em;
+  margin-left: 0.06em;
   vertical-align: text-bottom;
   background: var(--accent);
-  animation: blink 1.1s steps(1) infinite;
 }
+:root[data-blink] .output::after { animation: blink 1.1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .output::after { animation: none; } }
-:root[data-calm] .output::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { :root[data-blink] .output::after { animation: none; } }
 
 /* --- Copy, Clear, Help, Settings --- */
 .tools {
@@ -145,7 +136,7 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
 }
 .tools button, button.plain {
   min-width: 0;
-  min-height: calc(var(--scale) * 2.8rem);
+  min-height: 2.3em;
   padding: 0.3em 0.4em;
   background: var(--surface);
   border: var(--bw) solid var(--border);
@@ -235,7 +226,7 @@ button.plain { font-size: var(--fs-ui); }
   background: var(--surface);
   border: var(--bw) solid var(--border);
   border-radius: var(--radius);
-  font-size: min(var(--fs-key), var(--key-fit));
+  font-size: min(var(--fs-key), var(--key-fit), 6.5dvh);
   font-weight: 700;
   line-height: 1.15;
   overflow-wrap: normal;
@@ -244,8 +235,8 @@ button.plain { font-size: var(--fs-ui); }
   touch-action: manipulation;
   -webkit-touch-callout: none;
 }
-.key.func   { grid-column: 4; grid-row: 1; background: var(--func); border-color: var(--func); color: var(--func-text); font-size: min(var(--fs-key), var(--side-fit)); }
-.key.select { grid-column: 4; grid-row: 2; background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-size: min(var(--fs-key), var(--side-fit)); }
+.key.func   { grid-column: 4; grid-row: 1; background: var(--func); border-color: var(--func); color: var(--func-text); font-size: min(var(--fs-key), var(--side-fit), 6.5dvh); }
+.key.select { grid-column: 4; grid-row: 2; background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-size: min(var(--fs-key), var(--side-fit), 6.5dvh); }
 .key.down, .key.pressed, .candidate.down {
   outline: 0.3rem solid var(--accent);
   outline-offset: -0.3rem;
@@ -390,21 +381,16 @@ legend { padding: 0; font-weight: 700; font-size: 1.1em; }
   cursor: pointer;
 }
 
-/* Narrow windows (a phone upright): wider letter keys, Func and Select in a row below them. */
-@media (max-width: 700px) {
+/* Narrow upright windows (a phone): wider letter keys, Func and Select in a row below them. */
+@media (max-width: 700px) and (orientation: portrait) {
   .keypad {
-    --key-fit: 9cqi;
+    --key-fit: 8cqi;
     --side-fit: 11cqi;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.6fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.7fr);
   }
+  .key.func, .key.select { font-size: min(var(--fs-key), var(--side-fit), 5.2dvh); }
   .key.letter { grid-column: span 2; }
   .key.func   { grid-column: 1 / span 3; grid-row: 3; }
   .key.select { grid-column: 4 / span 3; grid-row: 3; }
-}
-
-/* Short windows, such as a phone on its side: keep every control on screen. */
-@media (max-height: 520px) {
-  :root { --fs-output: calc(var(--scale) * 1.4rem); --fs-key: calc(var(--scale) * 1.3rem); --fs-cand: calc(var(--scale) * 1.2rem); }
-  .buffer-line { min-height: calc(var(--scale) * 2.6rem); }
 }
