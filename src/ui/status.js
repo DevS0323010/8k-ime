@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 s0323010
 
+import { bindPress } from "./touch.js";
+
 const SLOTS = 4;
 
-/** The buffer line and the strip of candidate words. */
-export function createStatus({ bufferEl, modeEl, candidatesEl }, layout) {
+/**
+ * The buffer line and the strip of candidate words. Tapping a candidate
+ * highlights it, as if Select had been pressed until it got there.
+ */
+export function createStatus({ bufferEl, modeEl, candidatesEl, announceEl }, layout, handlers) {
   const slots = Array.from({ length: SLOTS }, () => {
-    const slot = document.createElement("span");
+    const slot = document.createElement("button");
+    slot.type = "button";
     slot.className = "candidate";
+    slot.tabIndex = -1;
+    bindPress(slot, () => (slot.dataset.index ? { type: "pick", index: Number(slot.dataset.index) } : null), handlers);
     return slot;
   });
   candidatesEl.replaceChildren(...slots);
@@ -26,7 +34,10 @@ export function createStatus({ bufferEl, modeEl, candidatesEl }, layout) {
       slot.textContent = word === undefined ? "–" : format(word);
       slot.classList.toggle("empty", word === undefined);
       slot.classList.toggle("selected", ime.optionId >= 0 && offset + i === ime.optionId);
+      if (word === undefined) delete slot.dataset.index;
+      else slot.dataset.index = String(offset + i);
     });
+    if (announceEl) announceEl.textContent = ime.optionId >= 0 ? format(ime.options[ime.optionId]) : "";
   }
 
   return { render };

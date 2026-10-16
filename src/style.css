@@ -1,37 +1,54 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Copyright (C) 2026 s0323010 */
 
+/*
+ * Made for people who find small, close targets hard to hit: the page fills
+ * the window, keys are large and well apart, and type scales with --scale.
+ * Colours use light-dark(), so [data-theme] only has to pick color-scheme.
+ */
+
 :root {
   color-scheme: light dark;
-  --bg: #f6f6f4;
-  --surface: #ffffff;
-  --surface-2: #ececea;
-  --text: #1c1c1a;
-  --muted: #6a6a66;
-  --border: #d4d4d0;
-  --accent: #0b6bcb;
-  --accent-text: #ffffff;
-  --func: #b45f06;
-  --chunk-s: 70%;
-  --chunk-l: 86%;
-  --radius: 10px;
-  --gap: 8px;
+  --scale: 1;
+  --hold-ms: 0ms;
+
+  --bg: light-dark(#f4f4f1, #111111);
+  --surface: light-dark(#ffffff, #1c1c1c);
+  --surface-2: light-dark(#e6e6e2, #2b2b2b);
+  --text: light-dark(#161614, #f1f1ee);
+  --muted: light-dark(#52524e, #b4b4ae);
+  --border: light-dark(#8c8c86, #6e6e68);
+  --accent: light-dark(#0a56b0, #62aaff);
+  --accent-text: light-dark(#ffffff, #06111f);
+  --func: light-dark(#8a4600, #ffb454);
+  --func-text: light-dark(#ffffff, #1b1000);
+  --bw: 2px;
+  --radius: 14px;
+  --gap: clamp(8px, 1.6vmin, 18px);
+
+  --fs-output: calc(var(--scale) * clamp(1.6rem, 4.2vmin, 3.6rem));
+  --fs-key: calc(var(--scale) * clamp(1.5rem, 4vmin, 3.4rem));
+  --fs-cand: calc(var(--scale) * clamp(1.4rem, 3.4vmin, 3rem));
+  --fs-buffer: calc(var(--scale) * clamp(1.6rem, 4vmin, 3.2rem));
+  --fs-ui: calc(var(--scale) * clamp(1.4rem, 3vmin, 2.6rem));
+  --fs-text: calc(var(--scale) * 1.25rem);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141414;
-    --surface: #1e1e1e;
-    --surface-2: #2a2a2a;
-    --text: #e8e8e6;
-    --muted: #9a9a96;
-    --border: #3a3a3a;
-    --accent: #3b92ec;
-    --accent-text: #08121e;
-    --func: #e0a050;
-    --chunk-s: 38%;
-    --chunk-l: 24%;
-  }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="contrast"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #1a1a1a;
+  --text: #ffffff;
+  --muted: #ffffff;
+  --border: #ffffff;
+  --accent: #ffe600;
+  --accent-text: #000000;
+  --func: #00e5ff;
+  --func-text: #000000;
+  --bw: 4px;
 }
 
 * { box-sizing: border-box; }
@@ -42,165 +59,286 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: var(--fs-text) / 1.5 "Atkinson Hyperlegible", Verdana, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.02em;
   -webkit-tap-highlight-color: transparent;
 }
 
-button { font: inherit; color: inherit; }
+button { font: inherit; color: inherit; letter-spacing: inherit; }
 
-#loading { margin: 24px 16px; color: var(--muted); }
-#loading.error { color: #c0392b; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
+:focus-visible {
+  outline: 0.25rem solid var(--accent);
+  outline-offset: 3px;
+}
+
+#loading { margin: 24px; font-size: var(--fs-ui); color: var(--muted); }
+#loading.error { color: light-dark(#a02818, #ff8a78); }
+
+/* --- the page fills the window --- */
 #app {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 720px;
-  min-height: 100dvh;
-  margin: 0 auto;
-  padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 2fr);
+  grid-template-areas: "output" "tools" "status" "keypad";
+  gap: var(--gap);
+  height: 100dvh;
+  padding: max(var(--gap), env(safe-area-inset-top)) max(var(--gap), env(safe-area-inset-right))
+    max(var(--gap), env(safe-area-inset-bottom)) max(var(--gap), env(safe-area-inset-left));
 }
 #app[hidden] { display: none; }
 
-/* Output */
-.output-wrap { flex: 1 1 8rem; display: flex; flex-direction: column; gap: var(--gap); min-height: 8rem; }
+/* Wide windows: text and controls on the left, keys on the right, so keys stay close to square. */
+@media (min-aspect-ratio: 3/2) and (min-width: 800px) {
+  #app {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas: "output keypad" "tools keypad" "status keypad";
+  }
+}
+
+.output-wrap { grid-area: output; display: flex; min-height: 0; }
 
 .output {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
-  padding: 12px 14px;
+  padding: 0.5em 0.65em;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius);
-  font-size: 1.25rem;
+  font-size: var(--fs-output);
+  line-height: 1.4;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 .output::after {
   content: "";
   display: inline-block;
-  width: 2px;
-  height: 1.1em;
-  margin-left: 1px;
+  width: 0.12em;
+  height: 1em;
+  margin-left: 0.05em;
   vertical-align: text-bottom;
   background: var(--accent);
   animation: blink 1.1s steps(1) infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .output::after { animation: none; } }
+:root[data-calm] .output::after { animation: none; }
 
-.tools { display: flex; gap: var(--gap); justify-content: flex-end; }
-.tools button {
-  min-width: 5.5rem;
-  min-height: 44px;
-  padding: 0 16px;
+/* --- Copy, Clear, Help, Settings --- */
+.tools {
+  container-type: inline-size;
+  grid-area: tools;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.tools button, button.plain {
+  min-width: 0;
+  min-height: calc(var(--scale) * 2.8rem);
+  padding: 0.3em 0.4em;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
 }
+/* "Settings" is the longest label: about 4.6 times the font size wide. */
+.tools button { font-size: min(var(--fs-ui), 4.7cqi); }
+button.plain { font-size: var(--fs-ui); }
 .tools button:disabled { opacity: 0.45; cursor: default; }
 
-/* Buffer and candidates */
-.status { display: flex; flex-direction: column; gap: var(--gap); }
+/* --- buffer and suggestions --- */
+.status { container-type: inline-size; grid-area: status; display: grid; gap: var(--gap); }
 
 .buffer-line {
   display: flex;
   align-items: center;
-  gap: var(--gap);
-  min-height: 2.6rem;
-  padding: 4px 12px;
+  gap: 0.6em;
+  min-height: 1.8em;
+  padding: 0.1em 0.6em;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius);
-  font: 1.3rem/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font: var(--fs-buffer) / 1.3 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
-.buffer { letter-spacing: 0.08em; }
+.buffer { letter-spacing: 0.1em; font-weight: 700; }
 .mode {
-  padding: 0 8px;
+  padding: 0 0.5em;
   background: var(--func);
-  color: var(--bg);
-  border-radius: 6px;
-  font-size: 0.95rem;
+  color: var(--func-text);
+  border-radius: 8px;
+  font-size: 0.7em;
 }
 .mode[hidden] { display: none; }
 
-.candidates { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+.candidates {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+  font-size: min(var(--fs-cand), 5.1cqi); /* four columns: a word of eight letters still fits */
+}
+/* Narrow: two rows of two, with room for bigger type. */
+@container (max-width: 37.5rem) {
+  .candidates { grid-template-columns: repeat(2, minmax(0, 1fr)); font-size: min(var(--fs-cand), 9cqi); }
+}
 .candidate {
   min-width: 0;
-  padding: 8px 6px;
+  min-height: 2.2em;
+  padding: 0.25em 0.3em;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius);
-  font-size: 1.15rem;
+  font-size: 1em;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.candidate.empty { color: var(--muted); }
-.candidate.selected { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.candidate.empty { color: var(--muted); cursor: default; }
+.candidate.selected { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 700; }
 
-/* On-screen keys */
+/* --- the keys --- */
 .keypad {
+  --key-fit: 6.3cqi;  /* label size that still fits a key; cqi is 1% of the keypad's width */
+  --side-fit: 5.2cqi; /* the same for Func and Select, which are single words */
+  container-type: inline-size;
+  grid-area: keypad;
   display: grid;
-  grid-template-columns: repeat(3, 1fr) 0.85fr;
-  grid-auto-rows: clamp(4rem, 13vh, 6.5rem);
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 0.9fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: var(--gap);
+  min-height: 0;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
 }
 .key {
+  position: relative;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.2em;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius);
-  font-size: 1.15rem;
+  font-size: min(var(--fs-key), var(--key-fit));
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: normal;
+  hyphens: manual;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-touch-callout: none;
 }
-.key.func   { grid-column: 4; grid-row: 1; background: var(--func); border-color: var(--func); color: var(--bg); }
-.key.select { grid-column: 4; grid-row: 2; background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
-.key:active, .key.pressed { filter: brightness(1.2); transform: translateY(1px); }
-.key:focus-visible, .tools button:focus-visible, .help summary:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+.key.func   { grid-column: 4; grid-row: 1; background: var(--func); border-color: var(--func); color: var(--func-text); font-size: min(var(--fs-key), var(--side-fit)); }
+.key.select { grid-column: 4; grid-row: 2; background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-size: min(var(--fs-key), var(--side-fit)); }
+.key.down, .key.pressed, .candidate.down {
+  outline: 0.3rem solid var(--accent);
+  outline-offset: -0.3rem;
+  filter: brightness(1.3);
+}
+.key.func.down, .key.func.pressed, .key.select.down, .key.select.pressed {
+  outline-color: var(--text);
 }
 
-/* Keyboard map */
-.help { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; }
-.help summary { cursor: pointer; padding: 6px 0; }
-.hint { margin: 8px 0 4px; color: var(--muted); font-size: 0.9rem; }
-kbd { padding: 0 5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; font: inherit; font-size: 0.85em; }
+/* A fill along the bottom shows how long a key still has to be held. */
+.key.holding::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 0.5rem;
+  background: currentColor;
+  animation: hold var(--hold-ms) linear forwards;
+}
+@keyframes hold { from { width: 0; } to { width: 100%; } }
 
-.keymap { overflow-x: auto; }
-.board { display: flex; flex-direction: column; gap: 4px; width: max-content; max-width: 100%; margin-bottom: 8px; }
+/* --- dialogs --- */
+dialog {
+  width: min(64rem, calc(100vw - 2 * var(--gap)));
+  max-height: calc(100dvh - 2 * var(--gap));
+  padding: 1.2rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  background: var(--surface);
+  color: var(--text);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-text);
+}
+dialog::backdrop { background: rgb(0 0 0 / 0.6); }
+dialog h2 { margin: 0 0 0.5em; font-size: 1.5em; }
+dialog h3 { margin: 1.2em 0 0.3em; font-size: 1.15em; }
+dialog li { margin: 0.4em 0; }
+.note { margin: 0.2em 0 0.6em; color: var(--muted); font-size: 0.9em; }
+kbd {
+  padding: 0 0.35em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.9em;
+}
+.close { display: block; width: 100%; margin-top: 1.2rem; }
+
+fieldset { margin: 0 0 1.1rem; padding: 0; border: 0; }
+legend { padding: 0; font-weight: 700; font-size: 1.1em; }
+.choices { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 3.2rem;
+  padding: 0.3em 1em 0.3em 0.7em;
+  background: var(--surface-2);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.choice.wide { margin-bottom: 1rem; }
+.choice input { width: 1.5em; height: 1.5em; margin: 0; accent-color: var(--accent); }
+.choice:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 0.2rem var(--accent); }
+
+/* --- keyboard map in Help --- */
+.keymap { overflow-x: auto; font-size: 1rem; }
+.board { display: flex; flex-direction: column; gap: 4px; width: max-content; max-width: 100%; margin-bottom: 0.8rem; }
 .board-row { display: flex; gap: 4px; }
-.board-row:nth-child(3) { margin-left: 14px; }
-.board-row:nth-child(4) { margin-left: 26px; }
-.board-row:nth-child(5) { margin-left: 40px; }
-.board-row:last-child { margin-left: 120px; }
+.board-row:nth-child(3) { margin-left: 0.9em; }
+.board-row:nth-child(4) { margin-left: 1.6em; }
+.board-row:nth-child(5) { margin-left: 2.5em; }
+.board-row:last-child { margin-left: 7em; }
 .board-key {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 4px;
+  min-width: 2.2em;
+  height: 2.2em;
+  padding: 0 0.2em;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.9em;
   color: var(--muted);
 }
-.board-key.wide { min-width: 12rem; }
+.board-key.wide { min-width: 12em; }
 
 /* Letter chunks get a hue; Func, Select and the page actions are marked by their border. */
 [data-chunk="1"], [data-chunk="6"], [data-chunk="2"], [data-chunk="5"], [data-chunk="3"], [data-chunk="4"] {
   color: var(--text);
-  background: hsl(var(--h) var(--chunk-s) var(--chunk-l));
+  background: light-dark(hsl(var(--h) 70% 82%), hsl(var(--h) 38% 28%));
 }
 [data-chunk="1"] { --h: 210; }
 [data-chunk="6"] { --h: 150; }
@@ -208,34 +346,65 @@ kbd { padding: 0 5px; background: var(--surface-2); border: 1px solid var(--bord
 [data-chunk="5"] { --h: 275; }
 [data-chunk="3"] { --h: 330; }
 [data-chunk="4"] { --h: 55; }
-[data-chunk="F"]     { color: var(--text); border: 2px solid var(--func); }
-[data-chunk="S"]     { color: var(--text); border: 2px solid var(--accent); }
-[data-chunk="copy"], [data-chunk="clear"] { color: var(--text); border: 2px dashed var(--muted); }
+[data-chunk="F"]     { color: var(--text); border: 3px solid var(--func); }
+[data-chunk="S"]     { color: var(--text); border: 3px solid var(--accent); }
+[data-chunk="copy"], [data-chunk="clear"] { color: var(--text); border: 3px dashed var(--muted); }
+:root[data-theme="contrast"] .board-key[data-chunk="1"], :root[data-theme="contrast"] .board-key[data-chunk="6"],
+:root[data-theme="contrast"] .board-key[data-chunk="2"], :root[data-theme="contrast"] .board-key[data-chunk="5"],
+:root[data-theme="contrast"] .board-key[data-chunk="3"], :root[data-theme="contrast"] .board-key[data-chunk="4"],
+:root[data-theme="contrast"] .legend li[data-chunk="1"], :root[data-theme="contrast"] .legend li[data-chunk="6"],
+:root[data-theme="contrast"] .legend li[data-chunk="2"], :root[data-theme="contrast"] .legend li[data-chunk="5"],
+:root[data-theme="contrast"] .legend li[data-chunk="3"], :root[data-theme="contrast"] .legend li[data-chunk="4"] {
+  color: #000;
+  background: hsl(var(--h) 100% 65%);
+}
 
 .legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.legend li { padding: 2px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 0.85rem; }
+.legend li { margin: 0; padding: 0.1em 0.8em; border: 1px solid var(--border); border-radius: 999px; font-size: 0.9em; }
 
-/* Toast */
+/* --- toast --- */
 .toast {
   position: fixed;
   left: 50%;
-  bottom: max(16px, env(safe-area-inset-bottom));
+  bottom: max(var(--gap), env(safe-area-inset-bottom));
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 12px;
-  max-width: calc(100vw - 32px);
-  padding: 10px 16px;
+  gap: 1em;
+  max-width: calc(100vw - 2 * var(--gap));
+  padding: 0.6em 1em;
   transform: translateX(-50%);
   background: var(--text);
   color: var(--bg);
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+  font-size: var(--fs-ui);
 }
 .toast[hidden] { display: none; }
-.toast button { min-height: 32px; padding: 0 10px; background: none; border: 1px solid currentColor; border-radius: 6px; cursor: pointer; }
+.toast button {
+  min-height: 2.6rem;
+  padding: 0 1em;
+  background: none;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-/* Phones in landscape: keep the keys on screen. */
+/* Narrow windows (a phone upright): wider letter keys, Func and Select in a row below them. */
+@media (max-width: 700px) {
+  .keypad {
+    --key-fit: 9cqi;
+    --side-fit: 11cqi;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.6fr);
+  }
+  .key.letter { grid-column: span 2; }
+  .key.func   { grid-column: 1 / span 3; grid-row: 3; }
+  .key.select { grid-column: 4 / span 3; grid-row: 3; }
+}
+
+/* Short windows, such as a phone on its side: keep every control on screen. */
 @media (max-height: 520px) {
-  .keypad { grid-auto-rows: minmax(3rem, 16vh); }
-  .output-wrap { min-height: 3rem; }
+  :root { --fs-output: calc(var(--scale) * 1.4rem); --fs-key: calc(var(--scale) * 1.3rem); --fs-cand: calc(var(--scale) * 1.2rem); }
+  .buffer-line { min-height: calc(var(--scale) * 2.6rem); }
 }

@@ -29,6 +29,18 @@ export class IME {
     this.mode = "0";
   }
 
+  /**
+   * Highlights option `index` directly, as if Select had been pressed until it
+   * got there. Returns whether there was such an option to highlight.
+   */
+  selectOption(index) {
+    if (this.mode !== "0" || this.buffer === "F" || !(index >= 0 && index < this.options.length)) {
+      return false;
+    }
+    this.optionId = index;
+    return true;
+  }
+
   /** Back to a fresh start: no buffer, no context, normal mode. */
   reset() {
     this.buffer = "";

@@ -28,9 +28,13 @@ const PRECACHE = [
   "src/ui/keymap.js",
   "src/ui/keypad.js",
   "src/ui/keys.js",
+  "src/ui/panel.js",
+  "src/ui/press.js",
+  "src/ui/settings.js",
   "src/ui/status.js",
   "src/ui/text.js",
   "src/ui/toast.js",
+  "src/ui/touch.js",
   "data/keymap_words.txt",
   "data/ngram_model.txt",
 ];

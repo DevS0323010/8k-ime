@@ -99,3 +99,25 @@ test("the sentence start is the default history", () => {
   // base = 3 / 0.001 = 3000, so the unigram-only "the" scores 3000 * 0.05.
   assert.ok(Math.abs(the - 150) < 1e-9);
 });
+
+test("selectOption highlights an option directly, like pressing Select", () => {
+  const ime = createIME(layout, words, ngrams);
+  assert.equal(ime.selectOption(0), false, "no options yet");
+  ["4", "2"].forEach((token) => ime.input(token)); // "hi", "his", ...
+  assert.ok(ime.options.length > 2);
+  assert.equal(ime.selectOption(2), true);
+  assert.equal(ime.optionId, 2);
+  const picked = ime.options[2];
+  assert.deepEqual(ime.input("1").map((a) => a.text), [picked + " "], "the next key writes it");
+  assert.equal(ime.selectOption(99), false);
+  assert.equal(ime.selectOption(-1), false);
+});
+
+test("selectOption does nothing in function or symbol mode", () => {
+  const ime = createIME(layout, words, ngrams);
+  ime.input("F");
+  assert.equal(ime.selectOption(0), false);
+  ime.input("4"); // symbol mode
+  assert.equal(ime.mode, "4");
+  assert.equal(ime.selectOption(0), false);
+});

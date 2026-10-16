@@ -7,6 +7,9 @@ import { copyText } from "./ui/clipboard.js";
 import { buildKeyMap, resolveKey } from "./ui/keys.js";
 import { createKeymap } from "./ui/keymap.js";
 import { createKeypad } from "./ui/keypad.js";
+import { createSettingsPanel } from "./ui/panel.js";
+import { PressGate } from "./ui/press.js";
+import { applySettings, loadSettings, saveSettings } from "./ui/settings.js";
 import { createStatus } from "./ui/status.js";
 import { formatWord, Output } from "./ui/text.js";
 import { createToast } from "./ui/toast.js";
@@ -14,17 +17,29 @@ import { createToast } from "./ui/toast.js";
 const UNDO_MS = 6000;
 const $ = (id) => document.getElementById(id);
 
-function remember(key, value) {
+function storage() {
   try {
-    if (value === undefined) return localStorage.getItem(key);
-    localStorage.setItem(key, value);
+    return localStorage;
   } catch {
-    // Storage can be blocked; the page works without it.
+    return { getItem: () => null, setItem: () => {} }; // blocked: settings last until the page closes
   }
-  return null;
+}
+
+/** Opens a dialog; a click on its backdrop closes it. */
+function wireDialog(dialog, openButton) {
+  openButton.addEventListener("click", () => {
+    dialog.showModal();
+    dialog.scrollTop = 0; // focus lands on the Close button at the bottom
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
 }
 
 async function main() {
+  const settings = { current: loadSettings(storage()) };
+  applySettings(settings.current);
+
   const loading = $("loading");
   let data;
   try {
@@ -39,25 +54,16 @@ async function main() {
   const output = new Output();
   const toast = createToast($("toast"));
   let undoToastShown = false;
-
   const outputEl = $("output");
-  const status = createStatus(
-    { bufferEl: $("buffer"), modeEl: $("mode"), candidatesEl: $("candidates") },
-    data.layout,
-  );
 
-  function render() {
-    outputEl.textContent = output.text;
-    outputEl.scrollTop = outputEl.scrollHeight;
-    status.render(ime, (word) => formatWord(word, output.text));
-    keypad.render(ime);
-    $("copy").disabled = $("clear").disabled = output.text === "";
-    if (undoToastShown && !output.canUndo) toast.hide();
-  }
-
+  // --- what a press does ---
   function press(token) {
     output.apply(ime.input(token));
     render();
+  }
+
+  function pick(index) {
+    if (ime.selectOption(index)) render();
   }
 
   async function copy() {
@@ -87,11 +93,55 @@ async function main() {
     render();
   }
 
-  const keypad = createKeypad($("keypad"), data.layout, press);
-  createKeymap($("keymap"), data.bindings, data.layout);
+  function perform(hit) {
+    if (hit.type === "token") {
+      keypad.flash(hit.token);
+      press(hit.token);
+    } else if (hit.type === "pick") {
+      pick(hit.index);
+    } else if (hit.action === "copy") {
+      copy();
+    } else if (hit.action === "clear") {
+      clear();
+    }
+  }
+
+  // --- the gate between presses and what they do ---
+  const gate = new PressGate({
+    fire: perform,
+    onHoldStart: (hit, ms) => hit.type === "token" && keypad.hold(hit.token, ms),
+    onHoldEnd: (hit) => hit.type === "token" && keypad.endHold(hit.token),
+  });
+  gate.configure(settings.current);
+
+  const screen = {
+    onDown: (id, hit) => gate.press(id, hit, { onRelease: settings.current.screenFire === "release" }),
+    onUp: (id) => gate.release(id),
+    onCancel: (id) => gate.cancel(id),
+    onClick: perform,
+  };
+
+  const keypad = createKeypad($("keypad"), data.layout, screen);
+  const status = createStatus(
+    { bufferEl: $("buffer"), modeEl: $("mode"), candidatesEl: $("candidates"), announceEl: $("announce") },
+    data.layout,
+    screen,
+  );
+
+  function render() {
+    outputEl.textContent = output.text;
+    outputEl.scrollTop = outputEl.scrollHeight;
+    status.render(ime, (word) => formatWord(word, output.text));
+    keypad.render(ime);
+    $("copy").disabled = $("clear").disabled = output.text === "";
+    if (undoToastShown && !output.canUndo) toast.hide();
+  }
+
+  // --- physical keyboard ---
   const keyMap = buildKeyMap(data.bindings);
 
   document.addEventListener("keydown", (event) => {
+    if (document.querySelector("dialog[open]")) return; // Esc closes the dialog, nothing types
     if (event.target.closest?.("input, textarea, select, [contenteditable]")) return;
 
     // Ctrl+Z / Cmd+Z takes back a Clear while its Undo button is showing.
@@ -105,25 +155,23 @@ async function main() {
     const hit = resolveKey(event, keyMap);
     if (!hit) return;
     event.preventDefault(); // no page scroll, no button activation, no find-as-you-type
-    if (hit.repeat) return;
-    if (hit.type === "token") {
-      keypad.flash(hit.token);
-      press(hit.token);
-    } else if (hit.action === "copy") {
-      copy();
-    } else if (hit.action === "clear") {
-      clear();
-    }
+    gate.press(event.code, hit); // the gate ignores key repeat
   });
+  document.addEventListener("keyup", (event) => gate.release(event.code));
+  addEventListener("blur", () => gate.cancelAll());
 
+  // --- buttons, dialogs, settings ---
   $("copy").addEventListener("click", copy);
   $("clear").addEventListener("click", clear);
-
-  const details = $("help");
-  // Open by default where there is a physical keyboard to learn; closed on touch screens.
-  const saved = remember("help-open");
-  details.open = saved === null ? !matchMedia("(pointer: coarse)").matches : saved === "true";
-  details.addEventListener("toggle", () => remember("help-open", String(details.open)));
+  wireDialog($("help-dialog"), $("help"));
+  wireDialog($("settings-dialog"), $("settings"));
+  createKeymap($("keymap"), data.bindings, data.layout);
+  createSettingsPanel($("settings-form"), settings.current, (next) => {
+    settings.current = next;
+    applySettings(next);
+    saveSettings(storage(), next);
+    gate.configure(next);
+  });
 
   loading.hidden = true;
   $("app").hidden = false;

@@ -38,10 +38,21 @@ directly:
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-Keys are bound by physical position, in eight chunks (the page draws the map):
-six letter keys, Func and Select. The keyboard only types through the input
-method; `` ` `` copies the output, `Esc` clears it (Ctrl+Z or the Undo button
-brings it back). On touch screens use the on-screen keys.
+The page fills the window and is built for people who find small or close
+targets hard to hit: large keys with wide gaps, large type, and Help and
+Settings tucked behind buttons. Keys are bound by physical position, in eight
+chunks (Help draws the map): six letter keys, Func and Select, with the numpad
+as extra keys. The keyboard only types through the input method; `` ` ``
+copies the output, `Esc` clears it (Ctrl+Z or the Undo button brings it back).
+Tapping a suggestion picks it.
+
+Settings (kept in the browser):
+
+- text size up to double, and light, dark or high-contrast colours;
+- on-screen keys act when pressed or when released (slide off a key to cancel);
+- a hold time, 0.2 to 1 s, before any key counts, for the keyboard too, with a
+  fill along the key while you hold;
+- a calm mode with no blinking or animation.
 
 Spacing and capitals follow a few simple rules, not a language model (see the
 header of `src/ui/text.js`): punctuation attaches to the word before it, a

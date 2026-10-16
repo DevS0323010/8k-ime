@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 s0323010
 
+import { bindPress } from "./touch.js";
+
 /**
  * The on-screen keys: the six letter keys in two rows of three, with Func and
- * Select in a fourth column, as in the prototype's window. Fires on pointerdown
- * so touches have no delay, and never takes focus.
+ * Select in a fourth column, as in the prototype's window.
  */
-export function createKeypad(root, layout, onToken) {
+export function createKeypad(root, layout, handlers) {
   const buttons = new Map();
 
   function addButton(token, className) {
@@ -14,14 +15,7 @@ export function createKeypad(root, layout, onToken) {
     button.type = "button";
     button.className = `key ${className}`;
     button.dataset.token = token;
-    button.addEventListener("pointerdown", (event) => {
-      event.preventDefault(); // no focus change, no text selection, no ghost click
-      onToken(token);
-    });
-    // Keyboard activation (Enter or Space on a focused button) arrives as a click with detail 0.
-    button.addEventListener("click", (event) => {
-      if (event.detail === 0) onToken(token);
-    });
+    bindPress(button, () => ({ type: "token", token }), handlers);
     buttons.set(token, button);
     return button;
   }
@@ -30,7 +24,6 @@ export function createKeypad(root, layout, onToken) {
   const funcKey = addButton("F", "func");
   const selectKey = addButton("S", "select");
   selectKey.textContent = "Select";
-  // Grid areas: three letter keys per row, Func over Select in the last column.
   root.replaceChildren(...letterKeys, funcKey, selectKey);
 
   function render(ime) {
@@ -44,8 +37,22 @@ export function createKeypad(root, layout, onToken) {
     const button = buttons.get(token);
     if (!button) return;
     button.classList.add("pressed");
-    setTimeout(() => button.classList.remove("pressed"), 120);
+    setTimeout(() => button.classList.remove("pressed"), 160);
   }
 
-  return { render, flash };
+  /** Shows a fill running along the key while it has to be held. */
+  function hold(token, ms) {
+    const button = buttons.get(token);
+    if (!button) return;
+    button.style.setProperty("--hold-ms", `${ms}ms`);
+    button.classList.remove("holding");
+    void button.offsetWidth; // restarts the animation
+    button.classList.add("holding");
+  }
+
+  function endHold(token) {
+    buttons.get(token)?.classList.remove("holding");
+  }
+
+  return { render, flash, hold, endHold };
 }
