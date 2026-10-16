@@ -43,6 +43,11 @@ six letter keys, Func and Select. The keyboard only types through the input
 method; `` ` `` copies the output, `Esc` clears it (Ctrl+Z or the Undo button
 brings it back). On touch screens use the on-screen keys.
 
+Once visited over https (or localhost) the page works offline, and browsers can
+install it. For a single file that needs no server, run
+`python3 build/bundle.py`; it writes `dist/ime.html` (about 3.6 MB, git-ignored)
+with the scripts, styles and data inlined, and it works from `file://`.
+
 ## Tests
 
 ```sh
