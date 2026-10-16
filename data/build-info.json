@@ -1,0 +1,31 @@
+{
+  "wordfreq": "3.1.1",
+  "settings": {
+    "holdout_percent": 5,
+    "min_word_freq": 1e-07,
+    "vocab_top_n": 200000,
+    "min_bigram_count": 6
+  },
+  "sources": {
+    "oanc": {
+      "license": "No usage or redistribution restrictions",
+      "weight": 3.0,
+      "sha256": "1a5c37b0227c176d2c5a00f23721e70e7489782e31ba14e58e47f56eff04d24f"
+    },
+    "common-voice": {
+      "license": "CC0 1.0",
+      "weight": 1.5,
+      "sha256": "31ac8e200449ebd7aee4a8c6bd16d4dafd076cf11f7c3efe1035f0283712d136"
+    },
+    "gutenberg": {
+      "license": "Public domain (US)",
+      "weight": 0.7,
+      "sha256": "2d3c3ab548c653944310f37f536443ec85d0a0ad855fcae217a0c9efdce2d611"
+    },
+    "inaugural": {
+      "license": "Public domain",
+      "weight": 0.3,
+      "sha256": "b3b2cb7bd82697b58ff79c75af20ab963810d191a8c3d1f7c240f98e5d27a895"
+    }
+  }
+}
