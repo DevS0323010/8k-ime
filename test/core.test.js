@@ -147,3 +147,29 @@ test("the Select key is labelled by what it will do", () => {
   assert.equal(ime.mode, "0");
   assert.equal(select(), "Select", "left the mode");
 });
+
+test("any top-row key leaves an unused function menu without typing", () => {
+  for (const token of ["1", "6", "2"]) {
+    const ime = createIME(layout, words, ngrams);
+    ime.input("F");
+    assert.equal(ime.buffer, "F");
+    const actions = ime.input(token);
+    assert.deepEqual(actions, [], `key ${token} writes nothing`);
+    assert.equal(ime.buffer, "", `key ${token} leaves the function menu`);
+    assert.equal(ime.mode, "0");
+    assert.equal(ime.labels().select, "Select");
+    // ...and the next key starts a word as usual.
+    ime.input("1");
+    assert.equal(ime.buffer, "1");
+  }
+});
+
+test("Func after a word writes it and opens the function menu, so a second Func deletes it", () => {
+  const ime = createIME(layout, words, ngrams);
+  ["4", "2"].forEach((token) => ime.input(token)); // "hi"
+  ime.input("S"); // highlight the first option
+  const first = ime.options[0];
+  assert.deepEqual(ime.input("F").map((a) => a.text), [first + " "]);
+  assert.equal(ime.buffer, "F", "the function menu is open");
+  assert.deepEqual(ime.input("F"), [{ type: "deleteWord" }]);
+});
