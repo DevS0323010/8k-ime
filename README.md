@@ -1,7 +1,12 @@
 # 8k-ime
 
-A six-key predictive input method, built to run as static web pages. The
-project is in progress; this README only covers building the data for now.
+A six-key predictive input method for keyboards and touch screens, made to be
+easier to type with for people with athetosis. It runs as static web pages.
+
+**Try it: <https://devs0323010.github.io/8k-ime/>** (it also works offline once
+visited, and can be installed from the browser).
+
+This README covers building the data, running the page, and the tests.
 
 ## Building the data
 
