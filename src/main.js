@@ -123,7 +123,13 @@ async function main() {
 
   const keypad = createKeypad($("keypad"), data.layout, screen);
   const status = createStatus(
-    { bufferEl: $("buffer"), modeEl: $("mode"), candidatesEl: $("candidates"), announceEl: $("announce") },
+    {
+      bufferEl: $("buffer"),
+      modeEl: $("mode"),
+      candidatesEl: $("candidates"),
+      stripEl: $("strip"),
+      announceEl: $("announce"),
+    },
     data.layout,
     screen,
   );

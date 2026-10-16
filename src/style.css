@@ -88,8 +88,8 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
 #app {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(3.5rem, 1fr) auto auto minmax(38dvh, 2fr); /* the keys always keep a good share */
-  grid-template-areas: "output" "tools" "status" "keypad";
+  grid-template-rows: minmax(3.5rem, 1fr) auto auto minmax(46dvh, 3fr); /* the keys get the most room */
+  grid-template-areas: "output" "buffer" "strip" "keypad";
   gap: var(--gap);
   height: 100dvh;
   padding: max(var(--gap), env(safe-area-inset-top)) max(var(--gap), env(safe-area-inset-right))
@@ -129,7 +129,6 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
 /* --- Copy, Clear, Help, Settings --- */
 .tools {
   container-type: inline-size;
-  grid-area: tools;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--gap);
@@ -149,9 +148,14 @@ button.plain { font-size: var(--fs-ui); }
 .tools button:disabled { opacity: 0.45; cursor: default; }
 
 /* --- buffer and suggestions --- */
-.status { container-type: inline-size; grid-area: status; display: grid; gap: var(--gap); }
+/* The suggestions and the action buttons take turns in the same place, so nothing moves. */
+.strip { container-type: inline-size; grid-area: strip; display: grid; }
+.strip > * { grid-area: 1 / 1; min-width: 0; }
+.strip.has-candidates .tools { visibility: hidden; }
+.strip:not(.has-candidates) .candidates { visibility: hidden; }
 
 .buffer-line {
+  grid-area: buffer;
   display: flex;
   align-items: center;
   gap: 0.6em;

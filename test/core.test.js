@@ -121,3 +121,29 @@ test("selectOption does nothing in function or symbol mode", () => {
   assert.equal(ime.mode, "4");
   assert.equal(ime.selectOption(0), false);
 });
+
+test("the Select key is labelled by what it will do", () => {
+  const ime = createIME(layout, words, ngrams);
+  const select = () => ime.labels().select;
+  assert.equal(select(), "Select", "typing words");
+  ime.input("4");
+  assert.equal(select(), "Select");
+  ime.input("F");
+  ime.input("F"); // buffer is empty again after backspacing, then...
+  assert.equal(ime.buffer, "F");
+  assert.equal(select(), "↵", "function menu: Select writes a new line");
+  ime.input("S");
+  assert.equal(select(), "Select", "after the new line");
+
+  ime.input("F");
+  ime.input("4"); // the symbol mode .?!
+  assert.equal(ime.mode, "4");
+  assert.equal(select(), "Exit", "symbol mode, nothing waiting");
+  ime.input("1");
+  assert.equal(select(), "Select", "symbol mode, a character waiting to be accepted");
+  ime.input("S");
+  assert.equal(select(), "Exit", "accepted: nothing waiting again");
+  ime.input("S");
+  assert.equal(ime.mode, "0");
+  assert.equal(select(), "Select", "left the mode");
+});

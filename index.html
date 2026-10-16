@@ -20,19 +20,19 @@
       <div id="output" class="output" tabindex="0" role="textbox" aria-readonly="true" aria-multiline="true"></div>
     </section>
 
-    <div class="tools">
-      <button id="copy" type="button" disabled>Copy</button>
-      <button id="clear" type="button" disabled>Clear</button>
-      <button id="help" type="button">Help</button>
-      <button id="settings" type="button">Settings</button>
+    <div class="buffer-line">
+      <span id="mode" class="mode" hidden></span>
+      <span id="buffer" class="buffer"></span>
     </div>
 
-    <section class="status" aria-label="Input">
-      <div class="buffer-line">
-        <span id="mode" class="mode" hidden></span>
-        <span id="buffer" class="buffer"></span>
-      </div>
+    <section id="strip" class="strip" aria-label="Suggestions and actions">
       <div id="candidates" class="candidates" aria-label="Suggestions"></div>
+      <div class="tools">
+        <button id="copy" type="button" disabled>Copy</button>
+        <button id="clear" type="button" disabled>Clear</button>
+        <button id="help" type="button">Help</button>
+        <button id="settings" type="button">Settings</button>
+      </div>
       <p id="announce" class="sr-only" aria-live="polite"></p>
     </section>
 
@@ -45,20 +45,21 @@
     <ol>
       <li>Press the key that has the next letter on it, once for each letter of the word.
           The letters on a key are shown on the key.</li>
-      <li>Likely words appear above the keys. <strong>Select</strong> moves to the next one,
-          or tap a word to pick it.</li>
+      <li>Likely words appear above the keys, in place of the Copy, Clear, Help and Settings
+          buttons. <strong>Select</strong> moves to the next one, or tap a word to pick it.</li>
       <li>Press any letter key to write the picked word and start the next one.</li>
     </ol>
     <h3>Func</h3>
     <ul>
       <li><strong>Func</strong> removes the last key you pressed.</li>
       <li>With nothing typed, <strong>Func</strong> opens the function menu. In it,
-          <strong>Func</strong> again deletes the last word and <strong>Select</strong>
-          starts a new line.</li>
+          <strong>Func</strong> again deletes the last word and the key marked
+          <strong>↵</strong> (Select) starts a new line.</li>
       <li>In the function menu the lower keys switch to <em>abc</em> (spell letters),
           <em>123</em> (numbers and signs) or <em>.?!</em> (punctuation). There, press the same
           key again to change its character, <strong>Select</strong> to accept it, and
-          <strong>Func</strong> to go back.</li>
+          <strong>Func</strong> to go back. When nothing is waiting to be accepted,
+          <strong>Select</strong> reads <strong>Exit</strong> and leaves the mode.</li>
     </ul>
     <h3>Keyboard</h3>
     <div id="keymap" class="keymap"></div>

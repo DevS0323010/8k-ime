@@ -160,7 +160,11 @@ export class IME {
     return this.buffer.length > 0 ? this.#modeChar() : "";
   }
 
-  /** Labels for the six letter keys (in key_disp order) and for the F key. */
+  /**
+   * Labels for the six letter keys (in key_disp order), the F key and the S key.
+   * Select writes a new line in the function menu, and leaves a symbol mode
+   * when nothing is waiting to be accepted.
+   */
   labels() {
     const { key_disp: keyDisp, key_disp_func: keyDispFunc, mode_lists: modeLists } = this.layout;
     const keys = keyDisp.map(([token, label], i) => {
@@ -168,6 +172,12 @@ export class IME {
       return this.buffer === "F" ? keyDispFunc[i][1] : label;
     });
     const back = (this.buffer.length > 0 && this.optionId === -1) || this.mode !== "0";
-    return { keys, func: back ? "<<" : "Func" };
+    let select = "Select";
+    if (this.mode === "0") {
+      if (this.buffer === "F") select = "↵";
+    } else if (this.buffer === "") {
+      select = "Exit";
+    }
+    return { keys, func: back ? "<<" : "Func", select };
   }
 }

@@ -45,7 +45,10 @@ Settings tucked behind buttons. Keys are bound by physical position, in eight
 chunks (Help draws the map): six letter keys, Func and Select, with the numpad
 as extra keys. The keyboard only types through the input method; `` ` ``
 copies the output, `Esc` clears it (Ctrl+Z or the Undo button brings it back).
-Tapping a suggestion picks it.
+Tapping a suggestion picks it. The suggestions take the place of the Copy,
+Clear, Help and Settings buttons while there are any, which leaves more room
+for the keys. The Select key reads "↵" in the function menu (it writes a new
+line) and "Exit" in a symbol mode when nothing is waiting to be accepted.
 
 Settings (kept in the browser):
 

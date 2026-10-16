@@ -7,9 +7,11 @@ const SLOTS = 4;
 
 /**
  * The buffer line and the strip of candidate words. Tapping a candidate
- * highlights it, as if Select had been pressed until it got there.
+ * highlights it, as if Select had been pressed until it got there. The strip
+ * is shared with the Copy, Clear, Help and Settings buttons: the candidates
+ * show while there are any, the buttons otherwise.
  */
-export function createStatus({ bufferEl, modeEl, candidatesEl, announceEl }, layout, handlers) {
+export function createStatus({ bufferEl, modeEl, candidatesEl, stripEl, announceEl }, layout, handlers) {
   const slots = Array.from({ length: SLOTS }, () => {
     const slot = document.createElement("button");
     slot.type = "button";
@@ -37,6 +39,7 @@ export function createStatus({ bufferEl, modeEl, candidatesEl, announceEl }, lay
       if (word === undefined) delete slot.dataset.index;
       else slot.dataset.index = String(offset + i);
     });
+    stripEl.classList.toggle("has-candidates", ime.options.length > 0);
     if (announceEl) announceEl.textContent = ime.optionId >= 0 ? format(ime.options[ime.optionId]) : "";
   }
 

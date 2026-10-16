@@ -23,13 +23,16 @@ export function createKeypad(root, layout, handlers) {
   const letterKeys = layout.key_disp.map(([token]) => addButton(token, "letter"));
   const funcKey = addButton("F", "func");
   const selectKey = addButton("S", "select");
-  selectKey.textContent = "Select";
   root.replaceChildren(...letterKeys, funcKey, selectKey);
 
+  const spoken = { "↵": "New line" }; // for screen readers, where the symbol alone says nothing
+
   function render(ime) {
-    const { keys, func } = ime.labels();
+    const { keys, func, select } = ime.labels();
     letterKeys.forEach((button, i) => (button.textContent = keys[i]));
     funcKey.textContent = func;
+    selectKey.textContent = select;
+    selectKey.setAttribute("aria-label", spoken[select] ?? select);
   }
 
   /** Briefly marks the key for a token, so physical key presses show on screen. */
