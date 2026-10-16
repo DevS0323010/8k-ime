@@ -13,7 +13,8 @@ export function createStatus({ bufferEl, modeEl, candidatesEl }, layout) {
   candidatesEl.replaceChildren(...slots);
   const modeNames = new Map(layout.key_disp_func);
 
-  function render(ime) {
+  /** `format` maps a candidate to how it will appear in the output (capitals). */
+  function render(ime, format = (word) => word) {
     bufferEl.textContent = ime.bufferDisplay();
     modeEl.textContent = ime.mode === "0" ? "" : modeNames.get(ime.mode);
     modeEl.hidden = ime.mode === "0";
@@ -22,7 +23,7 @@ export function createStatus({ bufferEl, modeEl, candidatesEl }, layout) {
     const offset = Math.max(0, Math.floor(ime.optionId / SLOTS) * SLOTS);
     slots.forEach((slot, i) => {
       const word = ime.options[offset + i];
-      slot.textContent = word ?? "–";
+      slot.textContent = word === undefined ? "–" : format(word);
       slot.classList.toggle("empty", word === undefined);
       slot.classList.toggle("selected", ime.optionId >= 0 && offset + i === ime.optionId);
     });

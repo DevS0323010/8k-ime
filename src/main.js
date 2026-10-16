@@ -8,7 +8,7 @@ import { buildKeyMap, resolveKey } from "./ui/keys.js";
 import { createKeymap } from "./ui/keymap.js";
 import { createKeypad } from "./ui/keypad.js";
 import { createStatus } from "./ui/status.js";
-import { Output } from "./ui/text.js";
+import { formatWord, Output } from "./ui/text.js";
 import { createToast } from "./ui/toast.js";
 
 const UNDO_MS = 6000;
@@ -49,7 +49,7 @@ async function main() {
   function render() {
     outputEl.textContent = output.text;
     outputEl.scrollTop = outputEl.scrollHeight;
-    status.render(ime);
+    status.render(ime, (word) => formatWord(word, output.text));
     keypad.render(ime);
     $("copy").disabled = $("clear").disabled = output.text === "";
     if (undoToastShown && !output.canUndo) toast.hide();

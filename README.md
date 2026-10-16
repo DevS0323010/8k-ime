@@ -43,6 +43,12 @@ six letter keys, Func and Select. The keyboard only types through the input
 method; `` ` `` copies the output, `Esc` clears it (Ctrl+Z or the Undo button
 brings it back). On touch screens use the on-screen keys.
 
+Spacing and capitals follow a few simple rules, not a language model (see the
+header of `src/ui/text.js`): punctuation attaches to the word before it, a
+sentence or line starts with a capital, "i" becomes "I", and quotes pair up.
+Backspace in a symbol mode takes back a whole insertion, including the space a
+period removed.
+
 Once visited over https (or localhost) the page works offline, and browsers can
 install it. For a single file that needs no server, run
 `python3 build/bundle.py`; it writes `dist/ime.html` (about 3.6 MB, git-ignored)
