@@ -1,0 +1,118 @@
+{
+  "tokens": {
+    "1": {
+      "main": [
+        "Digit1",
+        "Digit2",
+        "Digit3",
+        "KeyQ",
+        "KeyW",
+        "KeyE"
+      ],
+      "numpad": [
+        "Numpad4"
+      ]
+    },
+    "6": {
+      "main": [
+        "Digit4",
+        "Digit5",
+        "Digit6",
+        "KeyR",
+        "KeyT",
+        "KeyY"
+      ],
+      "numpad": [
+        "Numpad5"
+      ]
+    },
+    "2": {
+      "main": [
+        "Digit7",
+        "Digit8",
+        "Digit9",
+        "KeyU",
+        "KeyI",
+        "KeyO"
+      ],
+      "numpad": [
+        "Numpad6"
+      ]
+    },
+    "5": {
+      "main": [
+        "KeyA",
+        "KeyS",
+        "KeyD",
+        "KeyZ",
+        "KeyX",
+        "KeyC"
+      ],
+      "numpad": [
+        "Numpad1"
+      ]
+    },
+    "3": {
+      "main": [
+        "KeyF",
+        "KeyG",
+        "KeyH",
+        "KeyV",
+        "KeyB",
+        "KeyN"
+      ],
+      "numpad": [
+        "Numpad2"
+      ]
+    },
+    "4": {
+      "main": [
+        "KeyJ",
+        "KeyK",
+        "KeyL",
+        "KeyM",
+        "Comma",
+        "Period"
+      ],
+      "numpad": [
+        "Numpad3"
+      ]
+    },
+    "S": {
+      "main": [
+        "Enter",
+        "ShiftRight",
+        "Slash",
+        "Semicolon",
+        "Quote",
+        "Space"
+      ],
+      "numpad": [
+        "NumpadEnter"
+      ]
+    },
+    "F": {
+      "main": [
+        "Backspace",
+        "Backslash",
+        "Digit0",
+        "Minus",
+        "Equal",
+        "KeyP",
+        "BracketLeft",
+        "BracketRight"
+      ],
+      "numpad": [
+        "NumpadAdd"
+      ]
+    }
+  },
+  "actions": {
+    "copy": [
+      "Backquote"
+    ],
+    "clear": [
+      "Escape"
+    ]
+  }
+}
