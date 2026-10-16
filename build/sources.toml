@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 s0323010
+#
+# Corpora the bigram model is built from, and the build settings.
+# `fetch.py` downloads each enabled source and checks it against sources.lock.toml.
+# `build.py` fails if an enabled source's `name` is missing from NOTICE.md.
+
+[build]
+holdout_percent = 5        # sentences hashed into this share are kept out of the counts
+min_word_freq = 1e-7       # vocabulary cut-off (wordfreq frequency)
+vocab_top_n = 200000       # wordfreq candidates considered before filtering
+min_bigram_count = 6       # raw occurrences, summed over all sources, needed to keep a bigram
+
+# kind = "lines": every non-empty line is a sentence.
+# kind = "text":  prose, split into sentences on . ! ?
+# weight: relative share of the final counts; each source is scaled so that its
+#         total counts equal weight / sum(weights) of the whole.
+
+[[source]]
+id = "oanc"
+name = "Open American National Corpus (OANC)"
+enabled = true
+license = "No usage or redistribution restrictions"
+homepage = "https://anc.org/data/oanc/"
+url = "https://github.com/nancyide/anc-website/releases/download/datasets-2026-09-25/OANC-1.0.1-UTF8.zip"
+extract = "zip"
+include = ["OANC/data/written_*/**/*.txt"]   # spoken transcripts are full of "uh"/"um", skipped
+kind = "text"
+weight = 3.0
+
+[[source]]
+id = "common-voice"
+name = "Common Voice English sentences"
+enabled = true
+license = "CC0 1.0"
+license_url = "https://raw.githubusercontent.com/common-voice/common-voice/main/server/data/en/LICENSE"
+homepage = "https://github.com/common-voice/common-voice/tree/main/server/data/en"
+url = "https://raw.githubusercontent.com/common-voice/common-voice/main/server/data/en/sentence-collector.txt"
+include = ["sentence-collector.txt"]
+kind = "lines"
+weight = 1.5
+
+[[source]]
+id = "gutenberg"
+name = "Project Gutenberg texts"
+enabled = true
+license = "Public domain (US)"
+homepage = "https://www.gutenberg.org/"
+url = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/gutenberg.zip"
+extract = "zip"
+include = ["gutenberg/*.txt"]
+kind = "text"
+weight = 0.7
+
+[[source]]
+id = "inaugural"
+name = "NLTK `inaugural`"
+enabled = true
+license = "Public domain"
+homepage = "https://www.nltk.org/nltk_data/"
+url = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/inaugural.zip"
+extract = "zip"
+include = ["inaugural/*.txt"]
+kind = "text"
+weight = 0.3

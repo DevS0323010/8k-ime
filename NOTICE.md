@@ -28,11 +28,11 @@ source's own page at that time.
 
 | Source | License | Used for | Status |
 |---|---|---|---|
-| [wordfreq](https://github.com/rspeer/wordfreq) data | CC BY-SA 4.0 | Vocabulary and unigram frequencies | In use (prototype) |
-| Project Gutenberg texts | Public domain (US) | Bigram counts | Planned |
-| NLTK `inaugural` | Public domain | Bigram counts | Planned |
-| Open American National Corpus (OANC) | No usage or redistribution restrictions | Bigram counts | Planned |
-| Common Voice English sentences | CC0 1.0 | Bigram counts | Planned |
+| [wordfreq](https://github.com/rspeer/wordfreq) data | CC BY-SA 4.0 | Vocabulary and unigram frequencies | In use |
+| Project Gutenberg texts | Public domain (US) | Bigram counts | In use |
+| NLTK `inaugural` | Public domain | Bigram counts | In use |
+| Open American National Corpus (OANC), written parts only | No usage or redistribution restrictions | Bigram counts | In use |
+| Common Voice English sentences | CC0 1.0 | Bigram counts | In use |
 | Wikipedia | CC BY-SA 4.0 / GFDL | Bigram counts | Under consideration |
 | Tatoeba English sentences | CC BY 2.0 FR (part CC0) | Bigram counts | Needs compatibility check with GPLv3 |
 | MASC | CC BY 3.0 (US) | Bigram counts | Needs compatibility check with GPLv3 |
