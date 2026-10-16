@@ -45,7 +45,8 @@ Settings tucked behind buttons. Keys are bound by physical position, in eight
 chunks (Help draws the map): six letter keys, Func and Select, with the numpad
 as extra keys. The keyboard only types through the input method; `` ` ``
 copies the output, `Esc` clears it (Ctrl+Z or the Undo button brings it back).
-Tapping a suggestion picks it. The suggestions take the place of the Copy,
+Tapping a suggestion highlights it (a setting can make it write the word at
+once instead). The suggestions take the place of the Copy,
 Clear, Help and Settings buttons while there are any, which leaves more room
 for the keys. The Select key reads "↵" in the function menu (it writes a new
 line) and "Exit" in a symbol mode when nothing is waiting to be accepted.
@@ -54,6 +55,7 @@ Settings (kept in the browser):
 
 - text size up to double, and light, dark or high-contrast colours;
 - on-screen keys act when pressed or when released (slide off a key to cancel);
+- whether tapping a suggestion highlights it or writes it at once;
 - a hold time, 0.2 to 1 s, before any key counts, for the keyboard too, with a
   fill along the key while you hold;
 - whether the cursor blinks (it does not by default).

@@ -41,6 +41,17 @@ export class IME {
     return true;
   }
 
+  /**
+   * Writes option `index` at once, as if it had been highlighted and then
+   * accepted. Returns the output actions (none if there is no such option).
+   */
+  commitOption(index) {
+    if (!this.selectOption(index)) return [];
+    const out = [];
+    this.#commitOption((text) => out.push({ type: "insert", text }));
+    return out;
+  }
+
   /** Back to a fresh start: no buffer, no context, normal mode. */
   reset() {
     this.buffer = "";

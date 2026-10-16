@@ -63,7 +63,9 @@ async function main() {
   }
 
   function pick(index) {
-    if (ime.selectOption(index)) render();
+    if (settings.current.tapSuggestion === "write") output.apply(ime.commitOption(index));
+    else ime.selectOption(index);
+    render();
   }
 
   async function copy() {

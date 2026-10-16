@@ -21,6 +21,12 @@ const SPEC = [
     options: [["press", "Pressed"], ["release", "Released"]],
   },
   {
+    key: "tapSuggestion",
+    legend: "Tapping a suggestion",
+    note: "Highlight: like Select, and the next key writes it. Write: the word is written at once.",
+    options: [["select", "Highlights it"], ["write", "Writes it"]],
+  },
+  {
     key: "holdMs",
     legend: "Hold a key before it counts",
     note: "Brief accidental touches are then ignored. Applies to the keyboard too.",

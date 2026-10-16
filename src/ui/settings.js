@@ -7,6 +7,7 @@ export const DEFAULTS = {
   textSize: 1, // multiplier for all type
   theme: "auto", // auto | light | dark | contrast
   screenFire: "release", // on-screen keys fire when pressed or when released
+  tapSuggestion: "select", // tapping a suggestion highlights it, or writes it at once
   holdMs: 0, // how long a key must be held
   blink: false, // the cursor blinks
 };
@@ -16,6 +17,7 @@ export const CHOICES = {
   textSize: [1, 1.25, 1.5, 2],
   theme: ["auto", "light", "dark", "contrast"],
   screenFire: ["press", "release"],
+  tapSuggestion: ["select", "write"],
   holdMs: [0, 200, 400, 600, 1000],
 };
 

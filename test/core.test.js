@@ -173,3 +173,29 @@ test("Func after a word writes it and opens the function menu, so a second Func 
   assert.equal(ime.buffer, "F", "the function menu is open");
   assert.deepEqual(ime.input("F"), [{ type: "deleteWord" }]);
 });
+
+test("commitOption writes an option at once and leaves the same state as accepting it", () => {
+  const typed = (tokens) => {
+    const ime = createIME(layout, words, ngrams);
+    tokens.forEach((t) => ime.input(t));
+    return ime;
+  };
+  const a = typed(["4", "2"]);
+  const word = a.options[2];
+  assert.deepEqual(a.commitOption(2), [{ type: "insert", text: word + " " }]);
+  assert.equal(a.buffer, "");
+  assert.equal(a.optionId, -1);
+  assert.deepEqual(a.options, []);
+  assert.equal(a.context.trim().split(" ").at(-1), word, "the word becomes the context");
+
+  // The same word reached by Select, then accepted by the next key, gives the same context.
+  const b = typed(["4", "2", "S", "S", "S"]);
+  assert.equal(b.options[b.optionId], word);
+  b.input("1");
+  assert.equal(b.context, a.context);
+
+  assert.deepEqual(typed(["4", "2"]).commitOption(99), []);
+  assert.deepEqual(typed([]).commitOption(0), [], "nothing typed");
+  const symbols = typed(["F", "4"]);
+  assert.deepEqual(symbols.commitOption(0), [], "not in a symbol mode");
+});
