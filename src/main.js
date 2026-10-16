@@ -130,4 +130,9 @@ async function main() {
   render();
 }
 
+// Works offline once visited. Needs https or localhost, so it is skipped elsewhere.
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+
 main();

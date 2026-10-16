@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The key layout: six letter keys, Func above Select. -->
+  <rect width="512" height="512" rx="96" fill="#141414"/>
+  <g fill="#e8e8e6">
+    <rect x="52" y="112" width="104" height="132" rx="20"/>
+    <rect x="168" y="112" width="104" height="132" rx="20"/>
+    <rect x="284" y="112" width="104" height="132" rx="20"/>
+    <rect x="52" y="268" width="104" height="132" rx="20"/>
+    <rect x="168" y="268" width="104" height="132" rx="20"/>
+    <rect x="284" y="268" width="104" height="132" rx="20"/>
+  </g>
+  <rect x="404" y="112" width="56" height="132" rx="20" fill="#e0a050"/>
+  <rect x="404" y="268" width="56" height="132" rx="20" fill="#3b92ec"/>
+</svg>
