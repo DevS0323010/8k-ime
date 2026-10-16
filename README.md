@@ -45,7 +45,8 @@ brings it back). On touch screens use the on-screen keys.
 
 Spacing and capitals follow a few simple rules, not a language model (see the
 header of `src/ui/text.js`): punctuation attaches to the word before it, a
-sentence or line starts with a capital, "i" becomes "I", and quotes pair up.
+sentence or line starts with a capital, "i" becomes "I", and double quotes pair
+up (single quotes are left as typed).
 Backspace in a symbol mode takes back a whole insertion, including the space a
 period removed.
 

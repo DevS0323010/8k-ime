@@ -52,13 +52,20 @@ test("i becomes I, with contractions", () => {
 test("brackets and quotes", () => {
   assert.equal(write("see ", "(", "below ", ")", "."), "See (below). ");
   assert.equal(write("he ", "said ", '"', "go ", '"', "."), 'He said "go". ');
-  assert.equal(write("he ", "said ", "'", "go ", "'", "."), "He said 'go'. ");
+  assert.equal(write("he ", "said ", "'", "go ", "'", "."), "He said ' go '. ");
   assert.equal(write("it ", "is ", "don't "), "It is don't ");
   assert.equal(write("so ", ".", '"', "yes ", '"'), 'So. "Yes" ');
 });
 
 test("a quote opened after a sentence end still capitalizes the word", () => {
   assert.equal(write("no ", ".", '"', "yes "), 'No. "Yes ');
+});
+
+test("single quotes are left alone: no pairing, no special spacing", () => {
+  assert.equal(write("dogs ", "'", "bones "), "Dogs ' bones ");
+  assert.equal(write("no ", ".", "'", "yes "), "No. ' yes ");
+  assert.equal(capitalizeNext("No. '"), false);
+  assert.equal(write("say ", '"', "a ", "'", "b ", '"'), 'Say "a \' b" ');
 });
 
 test("hyphens join words and plus has spaces around it", () => {
