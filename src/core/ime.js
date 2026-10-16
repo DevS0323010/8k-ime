@@ -29,6 +29,15 @@ export class IME {
     this.mode = "0";
   }
 
+  /** Back to a fresh start: no buffer, no context, normal mode. */
+  reset() {
+    this.buffer = "";
+    this.context = "";
+    this.#clearOptions();
+    this.optionId = -1;
+    this.mode = "0";
+  }
+
   /** Looks up the options for the current buffer. */
   #refreshOptions() {
     const found = getCandidates(this.context, this.buffer, this.model, this.lexicon);

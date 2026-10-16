@@ -28,6 +28,32 @@ step 2 again. After adding or changing a source, run `uv run build/fetch.py
 --lock` to update the checksums, and add the source to [`NOTICE.md`](NOTICE.md),
 since the build fails if an enabled source is missing there.
 
+## Running the page
+
+The page is static files; there is nothing to build. Browsers load ES modules
+and data files over HTTP, so serve the folder instead of opening `index.html`
+directly:
+
+```sh
+python3 -m http.server 8000   # then open http://localhost:8000
+```
+
+Keys are bound by physical position, in eight chunks (the page draws the map):
+six letter keys, Func and Select. The keyboard only types through the input
+method; `` ` `` copies the output, `Esc` clears it (Ctrl+Z or the Undo button
+brings it back). On touch screens use the on-screen keys.
+
+## Tests
+
+```sh
+node --test                  # needs Node 20 or newer, no packages
+python3 test/gen_golden.py   # regenerate test/golden.json after rebuilding data/
+```
+
+`test/golden.json` holds key sequences and the output the Python prototype in
+`tools/reference/` gives for them; the JavaScript core in `src/core/` must
+match it.
+
 ## License
 
 GPL-3.0-only, see [LICENSE](LICENSE). The generated data is derived from
