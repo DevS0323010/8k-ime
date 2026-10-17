@@ -11,7 +11,7 @@ import { createSettingsPanel } from "./ui/panel.js";
 import { PressGate } from "./ui/press.js";
 import { applySettings, loadSettings, saveSettings } from "./ui/settings.js";
 import { createStatus } from "./ui/status.js";
-import { formatWord, Output } from "./ui/text.js";
+import { formatWord, Output, previewWord } from "./ui/text.js";
 import { createToast } from "./ui/toast.js";
 
 const UNDO_MS = 6000;
@@ -136,8 +136,27 @@ async function main() {
     screen,
   );
 
+  /** The word that would be written next, if the preview is on and there is one. */
+  function pending() {
+    const { options, optionId, mode, buffer } = ime;
+    if (!settings.current.preview || mode !== "0" || buffer === "F" || options.length === 0) return null;
+    return previewWord(output.text, options[Math.max(optionId, 0)]);
+  }
+
+  function renderOutput() {
+    const next = pending();
+    if (!next) {
+      outputEl.textContent = output.text;
+      return;
+    }
+    const word = document.createElement("span");
+    word.className = "pending";
+    word.textContent = next.word;
+    outputEl.replaceChildren(output.text + next.gap, word);
+  }
+
   function render() {
-    outputEl.textContent = output.text;
+    renderOutput();
     outputEl.scrollTop = outputEl.scrollHeight;
     status.render(ime, (word) => formatWord(word, output.text));
     keypad.render(ime);
@@ -177,6 +196,7 @@ async function main() {
   createSettingsPanel($("settings-form"), settings.current, (next) => {
     settings.current = next;
     applySettings(next);
+    render();
     saveSettings(storage(), next);
     gate.configure(next);
   });

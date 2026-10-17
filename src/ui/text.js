@@ -58,6 +58,19 @@ function insertText(text, s) {
   return text + s;
 }
 
+/**
+ * How `word` would be added after `text`: {gap, word}, where gap is the space
+ * written before it (if any) and word has its capitals applied. The space after
+ * it is left out. Used to preview the word before it is written.
+ */
+export function previewWord(text, word) {
+  const full = insertText(text, word + " ");
+  if (!full.startsWith(text)) return null;
+  const added = full.slice(text.length);
+  const gap = added.startsWith(" ") ? " " : "";
+  return { gap, word: added.slice(gap.length).trimEnd() };
+}
+
 /** Applies one IME output action to a string. */
 export function applyAction(text, action) {
   switch (action.type) {

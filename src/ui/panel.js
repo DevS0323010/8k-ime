@@ -34,6 +34,11 @@ const SPEC = [
   },
 ];
 
+const TOGGLES = [
+  ["preview", "Show the next word, underlined, in the text"],
+  ["blink", "Blink the cursor"],
+];
+
 /**
  * Builds the settings form inside `root`. `onChange(settings)` runs on every
  * change. Returns {sync(settings)} to bring the controls up to date.
@@ -73,13 +78,17 @@ export function createSettingsPanel(root, settings, onChange) {
     parts.push(fieldset);
   }
 
-  const blinkLabel = document.createElement("label");
-  blinkLabel.className = "choice wide";
-  const blink = document.createElement("input");
-  blink.type = "checkbox";
-  blink.addEventListener("change", () => onChange((current = { ...current, blink: blink.checked })));
-  blinkLabel.append(blink, "Blink the cursor");
-  parts.push(blinkLabel);
+  const checkboxes = []; // {input, key}
+  for (const [key, label] of TOGGLES) {
+    const row = document.createElement("label");
+    row.className = "choice wide";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.addEventListener("change", () => onChange((current = { ...current, [key]: input.checked })));
+    checkboxes.push({ input, key });
+    row.append(input, label);
+    parts.push(row);
+  }
 
   const reset = document.createElement("button");
   reset.type = "button";
@@ -96,7 +105,7 @@ export function createSettingsPanel(root, settings, onChange) {
   function sync(next) {
     current = next;
     for (const { input, key, value } of radios) input.checked = next[key] === value;
-    blink.checked = next.blink;
+    for (const { input, key } of checkboxes) input.checked = next[key];
   }
   sync(settings);
   return { sync };

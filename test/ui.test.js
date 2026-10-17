@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { buildKeyMap, resolveKey } from "../src/ui/keys.js";
-import { applyAction, capitalizeNext, formatWord, Output } from "../src/ui/text.js";
+import { applyAction, capitalizeNext, formatWord, Output, previewWord } from "../src/ui/text.js";
 
 const bindings = JSON.parse(readFileSync(new URL("../src/layout/keybindings.json", import.meta.url), "utf8"));
 const insert = (text) => ({ type: "insert", text });
@@ -195,4 +195,13 @@ test("Ctrl, Alt and Meta combinations are left to the browser", () => {
     assert.equal(resolveKey({ code: "KeyQ", repeat: false, [mod]: true }, map), null);
   }
   assert.notEqual(resolveKey({ code: "KeyQ", repeat: false, shiftKey: true }, map), null, "Shift is allowed");
+});
+
+test("previewWord shows how a word would be added, without writing it", () => {
+  assert.deepEqual(previewWord("", "hi"), { gap: "", word: "Hi" });
+  assert.deepEqual(previewWord("Hello ", "world"), { gap: "", word: "world" });
+  assert.deepEqual(previewWord("Hello. ", "it"), { gap: "", word: "It" });
+  assert.deepEqual(previewWord("So ", "i"), { gap: "", word: "I" });
+  assert.deepEqual(previewWord("It costs 12", "dollars"), { gap: " ", word: "dollars" });
+  assert.deepEqual(previewWord('He said "', "go"), { gap: "", word: "go" });
 });

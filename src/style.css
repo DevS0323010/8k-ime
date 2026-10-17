@@ -112,6 +112,13 @@ button { font: inherit; color: inherit; letter-spacing: inherit; }
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* The word that Select would write: shown, but not written yet. */
+.pending {
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.14em;
+}
+
 /* The cursor shows where the next word goes. It does not blink unless asked to. */
 .output::after {
   content: "";

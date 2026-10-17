@@ -9,6 +9,7 @@ export const DEFAULTS = {
   screenFire: "release", // on-screen keys fire when pressed or when released
   tapSuggestion: "select", // tapping a suggestion highlights it, or writes it at once
   holdMs: 0, // how long a key must be held
+  preview: true, // show the next word, underlined, before it is written
   blink: false, // the cursor blinks
 };
 
@@ -28,7 +29,9 @@ export function normalize(raw) {
     for (const [key, allowed] of Object.entries(CHOICES)) {
       if (allowed.includes(raw[key])) settings[key] = raw[key];
     }
-    if (typeof raw.blink === "boolean") settings.blink = raw.blink;
+    for (const key of ["preview", "blink"]) {
+      if (typeof raw[key] === "boolean") settings[key] = raw[key];
+    }
   }
   return settings;
 }

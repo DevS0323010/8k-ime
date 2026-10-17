@@ -63,6 +63,7 @@ Settings (kept in the browser):
 - whether tapping a suggestion highlights it or writes it at once;
 - a hold time, 0.2 to 1 s, before any key counts, for the keyboard too, with a
   fill along the key while you hold;
+- whether the next word is previewed underlined in the text (on by default);
 - whether the cursor blinks (it does not by default).
 
 Spacing and capitals follow a few simple rules, not a language model (see the
