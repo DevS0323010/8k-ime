@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 s0323010
 //
-// Offline support. Files are fetched from the network when it is reachable
-// (through the browser's own HTTP cache, so unchanged files are cheap) and
-// from this cache otherwise. test/sw.test.js keeps PRECACHE in sync with the
-// files on disk.
+// Offline support. Files are fetched from the network when it is reachable and
+// from this cache otherwise. The network request asks the server whether the
+// file changed ("no-cache"), so unchanged files stay cheap but an edited one is
+// never served stale from the browser's HTTP cache. test/sw.test.js keeps
+// PRECACHE in sync with the files on disk.
 
-const CACHE = "8k-ime-v1";
+const CACHE = "8k-ime-v2";
 
 const PRECACHE = [
   "./",
@@ -40,7 +41,9 @@ const PRECACHE = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  // "reload" skips the HTTP cache, so the precached copies are the current ones.
+  const fresh = PRECACHE.map((path) => new Request(path, { cache: "reload" }));
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(fresh)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
@@ -56,7 +59,7 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET" || new URL(request.url).origin !== location.origin) return;
   event.respondWith(
-    fetch(request)
+    fetch(request, { cache: "no-cache" })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();
