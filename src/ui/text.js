@@ -59,16 +59,20 @@ function insertText(text, s) {
 }
 
 /**
- * How `word` would be added after `text`: {gap, word}, where gap is the space
- * written before it (if any) and word has its capitals applied. The space after
- * it is left out. Used to preview the word before it is written.
+ * How `insertion` (a word with its space, or one character) would change `text`,
+ * as {before, pending}: `before` is the text as it will stand, `pending` the
+ * part to show as not yet written. Adding "." can take back the space before
+ * it, so `before` is not always `text`. Spaces after the pending part are left
+ * out, so the cursor stays next to it. Null if there is nothing to show.
  */
-export function previewWord(text, word) {
-  const full = insertText(text, word + " ");
-  if (!full.startsWith(text)) return null;
-  const added = full.slice(text.length);
-  const gap = added.startsWith(" ") ? " " : "";
-  return { gap, word: added.slice(gap.length).trimEnd() };
+export function previewInsertion(text, insertion) {
+  const full = insertText(text, insertion);
+  let common = 0;
+  while (common < text.length && common < full.length && text[common] === full[common]) common++;
+  const added = full.slice(common);
+  const gap = added.match(/^ */)[0];
+  const pending = added.slice(gap.length).trimEnd();
+  return pending === "" ? null : { before: full.slice(0, common) + gap, pending };
 }
 
 /** Applies one IME output action to a string. */

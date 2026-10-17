@@ -33,6 +33,16 @@ export function createKeypad(root, layout, handlers) {
     funcKey.textContent = func;
     selectKey.textContent = select;
     selectKey.setAttribute("aria-label", spoken[select] ?? select);
+
+    // In a symbol mode, mark the key the character being chosen is on, so that
+    // after looking away it is clear where you left off.
+    const current = ime.mode !== "0" && ime.buffer !== "" ? ime.buffer[0] : null;
+    for (const button of letterKeys) {
+      const here = button.dataset.token === current;
+      button.classList.toggle("current", here);
+      if (here) button.setAttribute("aria-current", "true");
+      else button.removeAttribute("aria-current");
+    }
   }
 
   /** Briefly marks the key for a token, so physical key presses show on screen. */

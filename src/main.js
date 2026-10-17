@@ -11,7 +11,7 @@ import { createSettingsPanel } from "./ui/panel.js";
 import { PressGate } from "./ui/press.js";
 import { applySettings, loadSettings, saveSettings } from "./ui/settings.js";
 import { createStatus } from "./ui/status.js";
-import { formatWord, Output, previewWord } from "./ui/text.js";
+import { formatWord, Output, previewInsertion } from "./ui/text.js";
 import { createToast } from "./ui/toast.js";
 
 const UNDO_MS = 6000;
@@ -136,11 +136,20 @@ async function main() {
     screen,
   );
 
-  /** The word that would be written next, if the preview is on and there is one. */
+  /**
+   * What would be written next, if the preview is on and there is something: the
+   * highlighted word (the first if none is), or the character a symbol mode
+   * currently stands for.
+   */
   function pending() {
+    if (!settings.current.preview) return null;
     const { options, optionId, mode, buffer } = ime;
-    if (!settings.current.preview || mode !== "0" || buffer === "F" || options.length === 0) return null;
-    return previewWord(output.text, options[Math.max(optionId, 0)]);
+    if (mode === "0") {
+      if (buffer === "F" || options.length === 0) return null;
+      return previewInsertion(output.text, options[Math.max(optionId, 0)] + " ");
+    }
+    const character = ime.bufferDisplay();
+    return character ? previewInsertion(output.text, character) : null;
   }
 
   function renderOutput() {
@@ -149,10 +158,10 @@ async function main() {
       outputEl.textContent = output.text;
       return;
     }
-    const word = document.createElement("span");
-    word.className = "pending";
-    word.textContent = next.word;
-    outputEl.replaceChildren(output.text + next.gap, word);
+    const mark = document.createElement("span");
+    mark.className = "pending";
+    mark.textContent = next.pending;
+    outputEl.replaceChildren(next.before, mark);
   }
 
   function render() {

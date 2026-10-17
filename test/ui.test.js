@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { buildKeyMap, resolveKey } from "../src/ui/keys.js";
-import { applyAction, capitalizeNext, formatWord, Output, previewWord } from "../src/ui/text.js";
+import { applyAction, capitalizeNext, formatWord, Output, previewInsertion } from "../src/ui/text.js";
 
 const bindings = JSON.parse(readFileSync(new URL("../src/layout/keybindings.json", import.meta.url), "utf8"));
 const insert = (text) => ({ type: "insert", text });
@@ -197,11 +197,30 @@ test("Ctrl, Alt and Meta combinations are left to the browser", () => {
   assert.notEqual(resolveKey({ code: "KeyQ", repeat: false, shiftKey: true }, map), null, "Shift is allowed");
 });
 
-test("previewWord shows how a word would be added, without writing it", () => {
-  assert.deepEqual(previewWord("", "hi"), { gap: "", word: "Hi" });
-  assert.deepEqual(previewWord("Hello ", "world"), { gap: "", word: "world" });
-  assert.deepEqual(previewWord("Hello. ", "it"), { gap: "", word: "It" });
-  assert.deepEqual(previewWord("So ", "i"), { gap: "", word: "I" });
-  assert.deepEqual(previewWord("It costs 12", "dollars"), { gap: " ", word: "dollars" });
-  assert.deepEqual(previewWord('He said "', "go"), { gap: "", word: "go" });
+test("previewInsertion shows how a word or character would be added, without writing it", () => {
+  assert.deepEqual(previewInsertion("", "hi "), { before: "", pending: "Hi" });
+  assert.deepEqual(previewInsertion("Hello ", "world "), { before: "Hello ", pending: "world" });
+  assert.deepEqual(previewInsertion("Hello. ", "it "), { before: "Hello. ", pending: "It" });
+  assert.deepEqual(previewInsertion("So ", "i "), { before: "So ", pending: "I" });
+  assert.deepEqual(previewInsertion("It costs 12", "dollars "), { before: "It costs 12 ", pending: "dollars" });
+  assert.deepEqual(previewInsertion('He said "', "go "), { before: 'He said "', pending: "go" });
+});
+
+test("previewInsertion for characters, including ones that take back a space", () => {
+  assert.deepEqual(previewInsertion("Hello ", "."), { before: "Hello", pending: "." });
+  assert.deepEqual(previewInsertion("Wait. ", "."), { before: "Wait.", pending: "." });
+  assert.deepEqual(previewInsertion("well ", "-"), { before: "well", pending: "-" });
+  assert.deepEqual(previewInsertion("5 ", "+"), { before: "5 ", pending: "+" });
+  assert.deepEqual(previewInsertion("It costs ", "9"), { before: "It costs ", pending: "9" });
+  assert.deepEqual(previewInsertion("pi is 3", "."), { before: "pi is 3", pending: "." });
+  assert.deepEqual(previewInsertion("", "a"), { before: "", pending: "A" });
+  assert.deepEqual(previewInsertion("see ", "a"), { before: "see ", pending: "a" });
+});
+
+test("the preview is what writing it gives", () => {
+  for (const [text, insertion] of [["Hello ", "."], ["Hello ", "world "], ["Wait. ", "."], ["", "hi "], ["a ", ")"]]) {
+    const { before, pending } = previewInsertion(text, insertion);
+    const written = applyAction(text, { type: "insert", text: insertion });
+    assert.ok(written.startsWith(before + pending), `${JSON.stringify(text)} + ${JSON.stringify(insertion)}`);
+  }
 });

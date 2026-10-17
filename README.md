@@ -54,7 +54,8 @@ Tapping a suggestion highlights it (a setting can make it write the word at
 once instead). The suggestions take the place of the Copy,
 Clear, Help and Settings buttons while there are any, which leaves more room
 for the keys. The Select key reads "↵" in the function menu (it writes a new
-line) and "Exit" in a symbol mode when nothing is waiting to be accepted.
+line) and "Exit" in a symbol mode when nothing is waiting to be accepted; there
+the key holding the character being chosen stays marked.
 
 Settings (kept in the browser):
 
@@ -63,7 +64,8 @@ Settings (kept in the browser):
 - whether tapping a suggestion highlights it or writes it at once;
 - a hold time, 0.2 to 1 s, before any key counts, for the keyboard too, with a
   fill along the key while you hold;
-- whether the next word is previewed underlined in the text (on by default);
+- whether the next word, or in a symbol mode the character being chosen, is
+  previewed underlined in the text (on by default);
 - whether the cursor blinks (it does not by default).
 
 Spacing and capitals follow a few simple rules, not a language model (see the

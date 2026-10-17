@@ -35,7 +35,7 @@ const SPEC = [
 ];
 
 const TOGGLES = [
-  ["preview", "Show the next word, underlined, in the text"],
+  ["preview", "Show the next word or character, underlined, in the text"],
   ["blink", "Blink the cursor"],
 ];
 

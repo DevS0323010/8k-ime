@@ -257,6 +257,12 @@ button.plain { font-size: var(--fs-ui); }
   outline-color: var(--text);
 }
 
+/* In a symbol mode: the key that the character being chosen is on. */
+.key.current {
+  box-shadow: inset 0 0 0 0.4rem var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+}
+
 /* A fill along the bottom shows how long a key still has to be held. */
 .key.holding::after {
   content: "";
